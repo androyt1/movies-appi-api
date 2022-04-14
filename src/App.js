@@ -1,25 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import React,{useEffect,useState} from 'react'
+import Home from './pages/Home'
+import MovieDetails from './components/MovieDetails'
+import Navbar from './components/Navbar'
+import { getMovies } from './api'
+import ScrollToTop from './components/ScrollToTop'
 
-function App() {
+import {BrowserRouter,Routes,Route} from 'react-router-dom'
+
+const App = () => {
+
+  const [movies,setMovies] = useState([])
+    const [search,setSearch] = useState('')
+    const [loading,setLoading] = useState(true)
+
+    const handleSearch = (e) => {
+        setSearch(e.target.value)
+    }
+
+    useEffect(() => {
+      const loadMovies = async () => {
+        setMovies(await getMovies(search))
+        setLoading(false)
+      } 
+      loadMovies()
+    },[search]) 
+  
+ 
+  console.log("Search Term",search)
+ 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+   <div>
+    <BrowserRouter>
+    <ScrollToTop />
+    <Navbar search={search} handleSearch={handleSearch}/>   
+    <Routes>   
+      <Route path="/" element={<Home  loading={loading} movies={movies}/>} />
+      <Route path="/movie-details/:id" element={<MovieDetails movies={movies}/>} />
+    </Routes>
+    </BrowserRouter>     
+   </div>  
+  ) 
 }
 
-export default App;
+export default App
